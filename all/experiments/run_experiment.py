@@ -1,6 +1,7 @@
 from .single_env_experiment import SingleEnvExperiment
 from .parallel_env_experiment import ParallelEnvExperiment
 from all.presets import ParallelPreset
+import torch
 
 
 def run_experiment(
@@ -24,6 +25,7 @@ def run_experiment(
     for env in envs:
         for preset_builder in agents:
             env.seed(0)
+            preset = preset_builder.env(env).build()
             if loadfile == "":
                 preset = preset_builder.env(env).build()
             else:
@@ -39,7 +41,7 @@ def run_experiment(
                 write_loss=write_loss,
                 writer=writer,
             )
-
+            print("train")
             experiment.train(frames=frames)
             experiment.save()
             experiment.test(episodes=test_episodes)

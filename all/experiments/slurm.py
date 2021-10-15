@@ -24,6 +24,7 @@ class SlurmExperiment:
             script_name='experiment.sh',
             outdir='out',
             logdir='runs',
+            loadfile="",
             sbatch_args=None,
     ):
         if not isinstance(agents, list):
@@ -52,7 +53,7 @@ class SlurmExperiment:
             # We are inside a slurm task.
             # Only run the experiment if the ID matches.
             if self._id == self.args.experiment_id:
-                self.run_experiment()
+                self.run_experiment(loadfile)
         else:
             # otherwise, we need to create the
             # bash file and call sbatch
@@ -63,7 +64,7 @@ class SlurmExperiment:
         parser.add_argument('--experiment_id', type=int)
         self.args = parser.parse_args()
 
-    def run_experiment(self):
+    def run_experiment(self, loadfile=""):
         task_id = int(os.environ['SLURM_ARRAY_TASK_ID'])
         env = self.envs[int(task_id / len(self.agents))]
         agent = self.agents[task_id % len(self.agents)]
@@ -73,7 +74,8 @@ class SlurmExperiment:
             self.frames,
             test_episodes=self.test_episodes,
             logdir=self.logdir,
-            write_loss=self.write_loss
+            write_loss=self.write_loss,
+            loadfile=loadfile,
         )
 
     def queue_jobs(self):
