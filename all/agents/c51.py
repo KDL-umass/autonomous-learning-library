@@ -129,7 +129,8 @@ class C51TestAgent(Agent):
 
     def act(self, state):
         q_values = (self.q_dist(state) * self.q_dist.atoms).sum(dim=-1)
-        normalized_q_values = F.softmax(q_values, dim=0)
+
+        normalized_q_values = F.softmax(q_values, dim=1).flatten()
 
         if np.random.rand() < self.exploration:
             return np.random.randint(0, self.n_actions), normalized_q_values
