@@ -42,6 +42,14 @@ def run_experiment(
                 writer=writer,
             )
             print("train")
+            print(loadfile)
+            print(experiment._writer.log_dir)
+
+            if loadfile != "":
+                with open("runs/loaded_dirs.txt", 'a+') as f:
+                    f.write(loadfile+", "+experiment._writer.log_dir)
+                    f.close()
+
             experiment.train(frames=frames)
             experiment.save()
             experiment.test(episodes=test_episodes)
