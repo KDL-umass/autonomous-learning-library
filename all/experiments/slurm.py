@@ -103,7 +103,7 @@ class SlurmExperiment:
             'gres': 'gpu:1'
         }
 
-        if self.node != "":
+        if self.nodelist != "":
             sbatch_args['nodelist'] = self.nodelist
 
         sbatch_args.update(self.sbatch_args)
