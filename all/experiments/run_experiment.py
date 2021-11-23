@@ -2,6 +2,7 @@ from .single_env_experiment import SingleEnvExperiment
 from .parallel_env_experiment import ParallelEnvExperiment
 from all.presets import ParallelPreset
 import torch
+import os
 
 
 def run_experiment(
@@ -47,7 +48,7 @@ def run_experiment(
 
             if loadfile != "":
                 with open("runs/loaded_dirs.txt", 'a+') as f:
-                    f.write(loadfile+", "+experiment._writer.log_dir)
+                    f.write(loadfile+", "+os.path.basename(os.path.normpath(experiment._writer.log_dir))+"\n")
                     f.close()
 
             experiment.train(frames=frames)

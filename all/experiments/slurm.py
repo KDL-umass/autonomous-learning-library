@@ -25,6 +25,7 @@ class SlurmExperiment:
             outdir='out',
             logdir='runs',
             loadfile="",
+            nodelist="",
             sbatch_args=None,
     ):
         if not isinstance(agents, list):
@@ -42,6 +43,8 @@ class SlurmExperiment:
         self.script_name = script_name
         self.outdir = outdir
         self.logdir = logdir
+        self.nodelist = nodelist
+        self.loadfile = loadfile
         self.sbatch_args = sbatch_args or {}
         self.parse_args()
 
@@ -53,7 +56,7 @@ class SlurmExperiment:
             # We are inside a slurm task.
             # Only run the experiment if the ID matches.
             if self._id == self.args.experiment_id:
-                self.run_experiment(loadfile)
+                self.run_experiment(self.loadfile)
         else:
             # otherwise, we need to create the
             # bash file and call sbatch
@@ -99,6 +102,10 @@ class SlurmExperiment:
             'mem-per-cpu': 4000,
             'gres': 'gpu:1'
         }
+
+        if self.node != "":
+            sbatch_args['nodelist'] = self.nodelist
+
         sbatch_args.update(self.sbatch_args)
 
         for key, value in sbatch_args.items():
