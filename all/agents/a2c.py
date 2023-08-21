@@ -4,6 +4,7 @@ from all.logging import DummyWriter
 from all.memory import NStepAdvantageBuffer
 from ._agent import Agent
 from ._parallel_agent import ParallelAgent
+import numpy as np
 
 
 class A2C(ParallelAgent):
@@ -53,6 +54,7 @@ class A2C(ParallelAgent):
         # private
         self._states = None
         self._actions = None
+        self._prev_actions = None
         self._batch_size = n_envs * n_steps
         self._buffer = self._make_buffer()
 
@@ -61,6 +63,10 @@ class A2C(ParallelAgent):
         self._train(states)
         self._states = states
         self._actions = self.policy.no_grad(self.features.no_grad(states)).sample()
+        if self._prev_actions != None:
+            for i in range(len(self._actions)):
+                self._actions[i] = np.random.choice([self._actions[i], self._prev_actions[i]], p=[0.75,0.25])
+        self._prev_actions = self._actions
         return self._actions
 
     def _train(self, next_states):
@@ -107,5 +113,8 @@ class A2CTestAgent(Agent, ParallelAgent):
         self.policy = policy
 
     def act(self, state):
+        print("self.policy.eval(self.features.eval(state)).sample(), self.policy.eval(self.features.eval(state)).probs")
+        print(self.policy.eval(self.features.eval(state)).sample())
+        print(self.policy.eval(self.features.eval(state)).probs)
         return self.policy.eval(self.features.eval(state)).sample(), self.policy.eval(self.features.eval(state)).probs
 
