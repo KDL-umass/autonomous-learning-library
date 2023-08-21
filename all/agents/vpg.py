@@ -3,6 +3,7 @@ from torch.nn.functional import mse_loss
 from all.core import State
 from ._agent import Agent
 from .a2c import A2CTestAgent
+import numpy as np
 
 
 class VPG(Agent):
@@ -45,13 +46,26 @@ class VPG(Agent):
         self._features = []
         self._log_pis = []
         self._rewards = []
+        self._action = None
+        self._prev_action = None
 
     def act(self, state):
         if not self._features:
-            return self._initial(state)
+            self._action = self._initial(state)
+            if self._prev_action != None:
+                self._action = np.random.choice([self._action, self._prev_action], p=[0.75,0.25])
+            self._prev_action = self._action
+            return self._action
+        
         if not state.done:
-            return self._act(state, state.reward)
-        return self._terminal(state, state.reward)
+            self._action = self._act(state, state.reward)
+        else: 
+            self._action = self._terminal(state, state.reward)
+        
+        if self._prev_action != None:
+            self._action = np.random.choice([self._action, self._prev_action], p=[0.75,0.25])
+        self._prev_action = self._action
+        return self._action
 
     def eval(self, state):
         return self.policy.eval(self.features.eval(state))

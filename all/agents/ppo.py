@@ -5,6 +5,7 @@ from all.memory import GeneralizedAdvantageBuffer
 from ._agent import Agent
 from ._parallel_agent import ParallelAgent
 from .a2c import A2CTestAgent
+import numpy as np
 
 
 class PPO(ParallelAgent):
@@ -63,6 +64,7 @@ class PPO(ParallelAgent):
         # private
         self._states = None
         self._actions = None
+        self._prev_actions = None
         self._batch_size = n_envs * n_steps
         self._buffer = self._make_buffer()
 
@@ -71,6 +73,10 @@ class PPO(ParallelAgent):
         self._train(states)
         self._states = states
         self._actions = self.policy.no_grad(self.features.no_grad(states)).sample()
+        if self._prev_actions != None:
+            for i in range(len(self._actions)):
+                self._actions[i] = np.random.choice([self._actions[i], self._prev_actions[i]], p=[0.75,0.25])
+        self._prev_actions = self._actions
         return self._actions
 
     def eval(self, states):

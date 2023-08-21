@@ -53,6 +53,7 @@ class C51(Agent):
         # private
         self._state = None
         self._action = None
+        self._prev_action = None
         self._frames_seen = 0
 
     def act(self, state):
@@ -60,6 +61,9 @@ class C51(Agent):
         self._train()
         self._state = state
         self._action = self._choose_action(state)
+        if self._prev_action != None:
+            self._action = np.random.choice([self._action, self._prev_action], p=[0.75,0.25])
+        self._prev_action = self._action
         return self._action
 
     def eval(self, state):

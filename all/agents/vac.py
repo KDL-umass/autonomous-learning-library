@@ -2,6 +2,7 @@ from torch.nn.functional import mse_loss
 from ._agent import Agent
 from ._parallel_agent import ParallelAgent
 from .a2c import A2CTestAgent
+import numpy as np
 
 
 class VAC(ParallelAgent):
@@ -30,12 +31,16 @@ class VAC(ParallelAgent):
         self._features = None
         self._distribution = None
         self._action = None
+        self._prev_action = None
 
     def act(self, state):
         self._train(state, state.reward)
         self._features = self.features(state)
         self._distribution = self.policy(self._features)
         self._action = self._distribution.sample()
+        if self._prev_action != None:
+            self._action = np.random.choice([self._action, self._prev_action], p=[0.75,0.25])
+        self._prev_action = self._action
         return self._action
 
     def eval(self, state):
