@@ -130,6 +130,8 @@ class C51TestAgent(Agent):
         self.q_dist = q_dist
         self.n_actions = n_actions
         self.exploration = exploration
+        self._prev_action = None
+        self._action = None
 
     def act(self, state):
         q_values = (self.q_dist(state) * self.q_dist.atoms).sum(dim=-1)
@@ -137,6 +139,12 @@ class C51TestAgent(Agent):
         normalized_q_values = F.softmax(q_values, dim=1).flatten()
 
         if np.random.rand() < self.exploration:
-            return np.random.randint(0, self.n_actions), normalized_q_values
-
-        return torch.argmax(q_values, dim=-1), normalized_q_values
+            self._action = np.random.randint(0, self.n_actions)
+            return self._action, normalized_q_values
+        
+        self._action = torch.argmax(q_values, dim=-1)
+        if self._prev_action != None:
+            self._action = np.random.choice([self._action, self._prev_action], p=[0.75,0.25])
+        self._prev_action = self._action
+        
+        return self._action, normalized_q_values

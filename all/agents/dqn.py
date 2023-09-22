@@ -97,6 +97,12 @@ class DQN(Agent):
 class DQNTestAgent(Agent):
     def __init__(self, policy):
         self.policy = policy
+        self._action = None
+        self._prev_action = None
 
     def act(self, state):
-        return self.policy.eval(state), F.softmax(self.policy.q.eval(state), dim=0)
+        self._action = self.policy.eval(state), F.softmax(self.policy.q.eval(state), dim=0)
+        if self._prev_action != None:
+            self._action = np.random.choice([self._action, self._prev_action], p=[0.75,0.25])
+        self._prev_action = self._action
+        return self._action

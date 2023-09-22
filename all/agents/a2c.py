@@ -111,10 +111,13 @@ class A2CTestAgent(Agent, ParallelAgent):
     def __init__(self, features, policy):
         self.features = features
         self.policy = policy
+        self._actions = None
+        self._prev_actions = None
 
     def act(self, state):
-        print("self.policy.eval(self.features.eval(state)).sample(), self.policy.eval(self.features.eval(state)).probs")
-        print(self.policy.eval(self.features.eval(state)).sample())
-        print(self.policy.eval(self.features.eval(state)).probs)
-        return self.policy.eval(self.features.eval(state)).sample(), self.policy.eval(self.features.eval(state)).probs
-
+        self._actions = self.policy.eval(self.features.eval(state)).sample(), self.policy.eval(self.features.eval(state)).probs
+        if self._prev_actions != None:
+            for i in range(len(self._actions)):
+                self._actions[i] = np.random.choice([self._actions[i], self._prev_actions[i]], p=[0.75,0.25])
+        self._prev_actions = self._actions
+        return self._actions
