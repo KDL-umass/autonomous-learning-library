@@ -80,7 +80,7 @@ class ParallelEnvExperiment(Experiment):
             completed_frames += num_envs
             returns += state_array.reward.cpu().detach().numpy()
             if self._frame >= _checkpoint_threshold:  # checkpointing
-                print("Saving Checkpoint")
+                print("Saving Checkpoint", flush=True)
                 Experiment.save(self, "preset" + str(int(_checkpoint_threshold)))
                 subprocess.call(["sh", "removeEvents.sh"])
 

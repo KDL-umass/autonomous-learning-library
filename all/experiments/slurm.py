@@ -59,7 +59,7 @@ class SlurmExperiment:
             # otherwise, we need to create the
             # bash file and call sbatch
             self.queue_jobs()
-
+    
     def parse_args(self):
         parser = argparse.ArgumentParser(description="Run an Atari benchmark.")
         parser.add_argument("--experiment_id", type=int)
@@ -76,6 +76,13 @@ class SlurmExperiment:
             nargs=1,
             type=str,
             help="Agent family:  a2c,c51, dqn, ddqn, ppo, rainbow, vsarsa, vqn",
+        )
+        parser.add_argument(
+            "--intv", 
+            nargs=1,
+            type=str,
+            default=["-1"],
+            help="Intervention number 0-?",
         )
 
         self.args = parser.parse_args()
@@ -110,7 +117,7 @@ class SlurmExperiment:
             "output": os.path.join(self.outdir, "all_%A_%a.out"),
             "error": os.path.join(self.outdir, "all_%A_%a.err"),
             "array": "0-" + str(num_experiments - 1),
-            "partition": "1080ti-short",
+            "partition": "gpu-preempt",
             "ntasks": 1,
             "mem-per-cpu": 4000,
             "gres": "gpu:1",
@@ -134,6 +141,8 @@ class SlurmExperiment:
             + str(self.args.env[0])
             + " --family "
             + str(self.args.family[0])
+            + " --intv "
+            + str(self.args.intv[0]) 
             + "\n"
         )
         script.close()

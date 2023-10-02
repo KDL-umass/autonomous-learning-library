@@ -82,7 +82,7 @@ class SingleEnvExperiment(Experiment):
             self._frame += 1
 
             if self._frame >= self._checkpoint_threshold:  # checkpointing
-                print("Saving Checkpoint")
+                print("Saving Checkpoint", flush=True)
                 Experiment.save(self, "preset" + str(int(self._checkpoint_threshold)))
                 subprocess.call(["sh", "removeEvents.sh"])
 
@@ -96,7 +96,7 @@ class SingleEnvExperiment(Experiment):
         # stop the timer
         end_time = timer()
         fps = (self._frame - start_frame) / (end_time - start_time)
-
+        
         # log the results
         self._log_training_episode(returns, fps)
 
